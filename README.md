@@ -10,6 +10,7 @@ Every post that contains code has a matching folder here. Each folder is self-co
 |---|----------|-------------|
 | 1 | Build Your First AI Agent in Python (Tool-Calling, Step by Step) — [post](https://visualstudiolearn.blogspot.com/2026/10/build-your-first-ai-agent-in-python.html) · [video](https://www.youtube.com/watch?v=r0nY3zq9YfE) | [`topic-01-first-ai-agent`](topic-01-first-ai-agent/) |
 | 2 | MCP Servers Explained: Give Your AI Agent Real Tools — [post](https://visualstudiolearn.blogspot.com/2026/10/mcp-servers-explained-give-your-ai.html) · video (link added at publish) | [`topic-02-mcp-server`](topic-02-mcp-server/) |
+| 3 | Small AI App #1: Build a PDF Q&A App with FastAPI + Gemini — post + video (links added at publish) | [`topic-03-pdf-qa-app`](topic-03-pdf-qa-app/) |
 
 New folders land with each new post (publishing cadence: Tuesday / Thursday / Saturday).
 
