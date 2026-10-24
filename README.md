@@ -1,6 +1,6 @@
 # Visual Studio Learn — Code
 
-Companion code for the tutorials on **[Visual Studio Learn](https://visualstudiolearn.blogspot.com)** and its YouTube channel, **[@SajjadAshraf037](https://www.youtube.com/@SajjadAshraf037)**.
+Companion code for the tutorials on **[Visual Studio Learn](https://visualstudiolearn.blogspot.com)** and its YouTube channel, **[@VisualStudioLearn](https://www.youtube.com/@VisualStudioLearn)**.
 
 Every post that contains code has a matching folder here. Each folder is self-contained — the exact code from the post, its dependencies, and a README that covers prerequisites, environment setup, install, build, run, and how to use it. If you can follow the README, you can run the code; no prior setup knowledge is assumed.
 
