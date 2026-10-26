@@ -1,0 +1,191 @@
+# Release-Notes Digest Agent
+
+Companion code for the Visual Studio Learn post and video
+**"I Built an AI Agent That Reads Release Notes So I Don't Have To"**.
+
+Every run, this one-file agent fetches the latest GitHub release of each
+project it tracks — CPython, FastAPI, and the Azure CLI out of the box —
+asks Google Gemini to summarise the release notes in three bullets and
+flag anything breaking, and writes a single Markdown digest,
+`digest.md`, with the breaking changes collected at the top. Run it from
+a scheduler every morning and the changelogs read themselves.
+
+## What it does
+
+- Fetches each project's public **releases Atom feed**
+  (`https://github.com/<owner>/<repo>/releases.atom`) — no GitHub
+  account or token needed, and the feed is not the rate-limited REST
+  API. The first entry in the feed is the newest published release.
+- Converts the notes from HTML to plain text, truncates anything very
+  long (12,000 characters), and sends the text to Gemini
+  (`gemini-3.6-flash`) with an instruction to answer as JSON: exactly
+  three summary bullets plus a list of breaking changes.
+- Writes `digest.md`: a dated header, a **⚠ Breaking changes** section
+  collecting every flag across all projects, one section per project
+  (version, release date, bullets, link to the release), and a footer
+  with the run's real token counts and estimated cost.
+- If a release ships with no notes at all, the agent says so in the
+  digest and does not spend a model call on it. If one project's feed
+  fails, the run continues with the others and logs the failure.
+
+## Prerequisites
+
+- Python 3.10 or newer (the tutorial uses **Python 3.12.3**).
+- A **Gemini API key** (free tier is enough — see below).
+
+## Environment setup
+
+### 1. Get a Gemini API key (free, no card)
+
+1. Go to **aistudio.google.com** and sign in with a Google account.
+2. Click **Get API key** (left sidebar, key icon).
+3. Click **Create API key**, choose or create a Google Cloud project when
+   asked, and click **Create**.
+4. Copy the key that appears. It is shown in your key list whenever you
+   need it again.
+5. Treat it like a password: never paste it into code, a screenshot, or a
+   public repository. This agent reads it from an environment variable
+   only.
+
+No billing or credit card is required for the free tier. The free tier
+has daily request limits; the pay-as-you-go rates used for the digest's
+cost footer are US$0.75 per million input tokens and US$3.75 per million
+output tokens for `gemini-3.6-flash`.
+
+### 2. Create the project environment
+
+```bash
+mkdir release-digest && cd release-digest
+python3 -m venv .venv && source .venv/bin/activate   # macOS / Linux
+# Windows PowerShell:  py -m venv .venv ; .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Pinned versions (matching the post): requests 2.34.2 · google-genai
+2.33.0.
+
+### 3. Set the key and verify
+
+```bash
+export GEMINI_API_KEY=<redacted>
+# Windows PowerShell:  $env:GEMINI_API_KEY=<redacted>
+```
+
+## Run
+
+```bash
+python digest_agent.py
+```
+
+The agent logs each feed it fetches and each release it finds, then
+writes `digest.md` in the current folder and logs the token/cost line
+that also lands in the digest footer.
+
+## Run it every morning (scheduling)
+
+**Windows — Task Scheduler**
+
+1. Open **Task Scheduler** → **Create Basic Task…**
+2. Name it `Release Digest`, choose **Daily**, set your morning time.
+3. Action: **Start a program**. Program/script:
+   `C:\path\to\release-digest\.venv\Scripts\python.exe`
+   Arguments: `digest_agent.py`
+   Start in: `C:\path\to\release-digest`
+4. The key must exist in the scheduled environment: set it once as a
+   user environment variable (Settings → Environment Variables →
+   `GEMINI_API_KEY`) instead of relying on your interactive shell.
+
+**macOS / Linux — cron**
+
+```cron
+15 7 * * * cd /path/to/release-digest && GEMINI_API_KEY=<redacted> .venv/bin/python digest_agent.py >> digest.log 2>&1
+```
+
+(Keep the key in a protected file or your shell's secret store rather
+than the crontab itself on a shared machine.)
+
+## Sample output
+
+`digest.md` from a morning run has this shape (versions, dates, and
+links are the live ones the agent fetched; Gemini writes the bullets):
+
+```markdown
+# Release Digest — Tuesday, October 27, 2026
+
+## ⚠ Breaking changes
+
+- **FastAPI 0.162.0** — [whatever the model flags, one line each]
+
+## CPython — v3.13.18
+
+Released: 2026-10-25 · [Release notes](https://github.com/python/cpython/releases/tag/v3.13.18)
+
+- [3 bullets written by Gemini from the notes]
+
+## FastAPI — 0.162.0
+
+Released: 2026-10-23 · [Release notes](https://github.com/fastapi/fastapi/releases/tag/0.162.0)
+
+- [3 bullets written by Gemini from the notes]
+
+## Azure CLI — Azure CLI 2.91.0
+
+Released: 2026-10-05 · [Release notes](https://github.com/Azure/azure-cli/releases/tag/azure-cli-2.91.0)
+
+- [3 bullets written by Gemini from the notes]
+
+---
+*Generated by digest_agent.py · Model: gemini-3.6-flash · Tokens: … · Estimated cost: $…*
+```
+
+One honest wrinkle the post shows in the real capture: CPython's GitHub
+release bodies are one-liners ("Python 3.13.18") and the Azure CLI's body
+is mostly a link to its full notes page plus download hashes — the agent
+tells Gemini to say so instead of inventing changes, and the prompt
+explicitly ignores hashes.
+
+## Errors you may hit
+
+- **`GEMINI_API_KEY is not set`** — the agent stops before doing any
+  work. Set the variable in the same shell (or scheduled environment)
+  that runs the script.
+- **A 404 naming the model (`gemini-…` "is no longer available
+  to new users")** — Google retires model names for new API keys first.
+  Open Google's models page, take the current Flash model it names, and
+  update the `MODEL` constant at the top of `digest_agent.py`. (This
+  exact failure is why the constant exists: `gemini-2.5-flash` returned
+  it to fresh keys in October 2026.)
+- **503 UNAVAILABLE ("high demand")** — the model is temporarily
+  overloaded; not your key or code. This is why `MODEL` is one
+  constant: this project was drafted against `gemini-3.8-flash`,
+  whose free tier returned 503s throughout production day
+  (October 26, 2026), so the pin moved to `gemini-3.6-flash` —
+  identical published rates through December 31, 2026.
+- **429 / quota errors from Gemini** — the free tier has daily limits;
+  three small summaries a day sit far below them, but a brand-new key
+  can be throttled. Wait for the daily reset or enable billing.
+- **A project logs "fetch or summary failed" but the run continues** —
+  that project's feed was unreachable, renamed, or returned no entries.
+  Check the repo path in `PROJECTS`; a renamed repo empties its feed.
+- **The breaking-changes section says "None flagged"** — that is a real
+  result, not a failure: the model found nothing in the notes that
+  could break existing code. Read the bullets before trusting it.
+- **Weird one-line bullets for CPython** — expected: its GitHub release
+  bodies carry almost no text (see "Sample output"). The full CPython
+  changelog lives on docs.python.org; the agent summarises the feed it
+  is given, no more.
+
+## Deliberate limits (and the upgrade path)
+
+- **Newest published ≠ newest version line.** The feed orders by
+  publish time, so a CPython security release for an older branch
+  (3.13.18) can headline over a feature release (3.15.1) published days
+  earlier. For a morning digest that is the right bias — it is what
+  actually shipped — and the digest always shows the version and date.
+- **Summaries are only as good as the notes.** Projects that publish
+  thin GitHub notes get thin summaries; the agent says so rather than
+  padding.
+- **No memory between runs.** The agent does not diff against
+  yesterday's digest; adding a small state file ("only summarise
+  releases newer than the last run") is the natural first upgrade,
+  followed by email/ntfy delivery of the digest.
