@@ -27,7 +27,7 @@ from google import genai
 logger = logging.getLogger("digest_agent")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-MODEL = "gemini-3.8-flash"
+MODEL = "gemini-3.6-flash"
 
 # The projects to watch: (display name, GitHub "owner/repo"). Add or
 # remove lines here — nothing else in the file needs to change.
@@ -42,7 +42,7 @@ USER_AGENT = "release-digest-agent/1.0 (Visual Studio Learn tutorial)"
 FETCH_TIMEOUT_SECONDS = 30
 MAX_NOTES_CHARS = 12_000  # truncate very long notes before the model call
 
-# Published pay-as-you-go rates for gemini-3.8-flash, US$ per 1M tokens.
+# Published pay-as-you-go rates for gemini-3.6-flash, US$ per 1M tokens.
 INPUT_RATE_PER_MILLION = 0.75
 OUTPUT_RATE_PER_MILLION = 3.75
 
