@@ -6,11 +6,13 @@ Visual Studio.”** It proves the same connection two ways:
 - a C# console app using **Microsoft.Data.SqlClient 6.1.7**;
 - a Python variant using **pyodbc 5.3.0** and Microsoft ODBC Driver 18.
 
-Both programs connect to LocalDB by default, create the `SqlConnectDemo`
-database and a three-row `DemoRows` table when needed, print
-`SELECT @@VERSION`, and then print the rows. Change one environment variable
-to run either program against a local SQL Server Developer-edition instance
-instead.
+Both programs connect to LocalDB by default, create the `DemoDb`
+database and the three-row `DemoCustomers` table when needed, print
+`SELECT @@VERSION`, and then print the rows — the same table and the
+same three rows (Amara in Toronto, Jonas in Berlin, Priya in Lagos)
+that Method 2 of the post creates and the videos show. Change one
+environment variable to run either program against a local SQL Server
+Developer-edition instance instead.
 
 The database work is deliberately idempotent: running a program more than
 once updates the same three demo rows instead of duplicating them.
@@ -87,7 +89,7 @@ exactly: `ODBC Driver 18 for SQL Server`.
 | `SqlConnectCheck/Program.cs` | C# connection check |
 | `python/connect_check.py` | Python/pyodbc connection check |
 | `python/requirements.txt` | Pinned Python dependency |
-| `setup.sql` | The same database/table setup for Object Explorer or SSMS |
+| `setup.sql` | The exact Method 2 script printed in the post — creates `dbo.DemoCustomers` and seeds the three demo rows |
 | `.env.example` | LocalDB and Developer-instance connection-string examples |
 
 No real credentials are included. The examples use Windows Authentication
@@ -100,14 +102,14 @@ and local servers only.
 With no variable set, `Program.cs` uses LocalDB:
 
 ```text
-Server=(localdb)\MSSQLLocalDB;Database=SqlConnectDemo;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;
+Server=(localdb)\MSSQLLocalDB;Database=DemoDb;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;
 ```
 
 To use a named Developer-edition instance in PowerShell, replace
 `HOSTNAME\INSTANCE` with your installation’s exact names:
 
 ```powershell
-$env:SQLCONN = "Server=HOSTNAME\INSTANCE;Database=SqlConnectDemo;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;"
+$env:SQLCONN = "Server=HOSTNAME\INSTANCE;Database=DemoDb;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;"
 ```
 
 For a default instance, use just the host name as the server value.
@@ -117,26 +119,30 @@ For a default instance, use just the host name as the server value.
 With no variable set, `connect_check.py` uses LocalDB:
 
 ```text
-DRIVER={ODBC Driver 18 for SQL Server};SERVER=(localdb)\MSSQLLocalDB;DATABASE=SqlConnectDemo;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes
+DRIVER={ODBC Driver 18 for SQL Server};SERVER=(localdb)\MSSQLLocalDB;DATABASE=DemoDb;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes
 ```
 
 To switch the Python program to a named Developer-edition instance:
 
 ```powershell
-$env:SQLCONN_ODBC = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=HOSTNAME\INSTANCE;DATABASE=SqlConnectDemo;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes;"
+$env:SQLCONN_ODBC = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=HOSTNAME\INSTANCE;DATABASE=DemoDb;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes;"
 ```
 
 ## Optional: run `setup.sql` first
 
 The programs create the database and table themselves, so this step is
 optional. It is useful when following the Object Explorer part of the
-tutorial:
+tutorial — `setup.sql` is the post's Method 2 script, word for word:
 
 1. In Visual Studio, open **View → SQL Server Object Explorer**.
 2. Add the LocalDB or Developer-edition server.
-3. Right-click the server or its **Databases** node and open a new query.
-4. Open and run `setup.sql`.
-5. Confirm that the result grid contains the three demo rows.
+3. Create the `DemoDb` database if it does not exist yet (right-click
+   **Databases → Add New Database**), or let a run of either checker
+   create it for you.
+4. Right-click `DemoDb` and open a new query, then open and run
+   `setup.sql`. It creates `dbo.DemoCustomers` in the database the
+   query window targets and seeds the three rows.
+5. Confirm that the result grid contains Amara, Jonas and Priya.
 
 ## Run the C# program
 
@@ -174,13 +180,13 @@ and final success line should match:
 
 ```text
 Connected to server: <your server name>
-Database: SqlConnectDemo
+Database: DemoDb
 SQL Server version:
 Microsoft SQL Server 2025 ... <the rest of your @@VERSION result>
 Demo rows:
-1 | Visual Studio | Development environment
-2 | SQL Server | Database engine
-3 | SQL Server Management Studio | Administration tool
+1 | Amara | Toronto
+2 | Jonas | Berlin
+3 | Priya | Lagos
 Success: SQL Server connection check passed.
 ```
 
@@ -222,8 +228,9 @@ a trusted authority.
 2. In SQL Server Object Explorer, use **New Query** to run
    `CREATE DATABASE PracticeDb;`.
 3. Change only the database name in the environment variable to
-   `PracticeDb` and run the program again. It should connect to that
-   database, create the same demo table there, and print the same success
+   `PracticeDb` and run the program again. PracticeDb starts empty, so
+   the program creates the `DemoCustomers` table inside it, seeds the
+   same three rows, prints them back, and ends with the same success
    line.
 4. Mistype the instance name, run once more, and compare the failure with
    the troubleshooting table.

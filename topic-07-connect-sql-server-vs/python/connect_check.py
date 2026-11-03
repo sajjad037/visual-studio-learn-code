@@ -13,41 +13,45 @@ import pyodbc
 DEFAULT_CONNECTION_STRING = (
     "DRIVER={ODBC Driver 18 for SQL Server};"
     "SERVER=(localdb)\\MSSQLLocalDB;"
-    "DATABASE=SqlConnectDemo;"
+    "DATABASE=DemoDb;"
     "Trusted_Connection=yes;"
     "Encrypt=yes;"
     "TrustServerCertificate=yes"
 )
 
+# The table is the post's Method 2 table — dbo.DemoCustomers — seeded with
+# the same three rows the post, setup.sql and the videos all show. The
+# MERGE keys on Name (Id is an IDENTITY column), so re-running updates the
+# same three rows instead of duplicating them.
 SETUP_SQL = """
-IF OBJECT_ID(N'dbo.DemoRows', N'U') IS NULL
+IF OBJECT_ID(N'dbo.DemoCustomers', N'U') IS NULL
 BEGIN
-    CREATE TABLE dbo.DemoRows
+    CREATE TABLE dbo.DemoCustomers
     (
-        Id int NOT NULL PRIMARY KEY,
-        Tool nvarchar(60) NOT NULL,
-        Category nvarchar(60) NOT NULL
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Name NVARCHAR(100) NOT NULL,
+        City NVARCHAR(100) NOT NULL
     );
 END;
 
-MERGE dbo.DemoRows AS target
+MERGE dbo.DemoCustomers AS target
 USING (VALUES
-    (1, N'Visual Studio', N'Development environment'),
-    (2, N'SQL Server', N'Database engine'),
-    (3, N'SQL Server Management Studio', N'Administration tool')
-) AS source (Id, Tool, Category)
-ON target.Id = source.Id
+    (N'Amara', N'Toronto'),
+    (N'Jonas', N'Berlin'),
+    (N'Priya', N'Lagos')
+) AS source (Name, City)
+ON target.Name = source.Name
 WHEN MATCHED THEN
-    UPDATE SET Tool = source.Tool, Category = source.Category
+    UPDATE SET City = source.City
 WHEN NOT MATCHED THEN
-    INSERT (Id, Tool, Category)
-    VALUES (source.Id, source.Tool, source.Category);
+    INSERT (Name, City)
+    VALUES (source.Name, source.City);
 """
 
 
 def database_name(connection_string: str) -> str:
     match = re.search(r"(?i)(?:DATABASE|Initial Catalog)\s*=\s*([^;]+)", connection_string)
-    return match.group(1).strip() if match else "SqlConnectDemo"
+    return match.group(1).strip() if match else "DemoDb"
 
 
 def with_database(connection_string: str, database: str) -> str:
@@ -89,9 +93,9 @@ def main() -> None:
         print("Demo rows:")
 
         for row in cursor.execute(
-            "SELECT Id, Tool, Category FROM dbo.DemoRows ORDER BY Id;"
+            "SELECT Id, Name, City FROM dbo.DemoCustomers ORDER BY Id;"
         ):
-            print(f"{row.Id} | {row.Tool} | {row.Category}")
+            print(f"{row.Id} | {row.Name} | {row.City}")
 
     print("Success: SQL Server connection check passed.")
 
