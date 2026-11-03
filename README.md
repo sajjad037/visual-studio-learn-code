@@ -12,6 +12,7 @@ Every post that contains code has a matching folder here. Each folder is self-co
 | 2 | MCP Servers Explained: Give Your AI Agent Real Tools — [post](https://visualstudiolearn.blogspot.com/2026/10/mcp-servers-explained-give-your-ai.html) · video (link added at publish) | [`topic-02-mcp-server`](topic-02-mcp-server/) |
 | 3 | Small AI App #1: Build a PDF Q&A App with FastAPI + Gemini — post + video (links added at publish) | [`topic-03-pdf-qa-app`](topic-03-pdf-qa-app/) |
 | 4 | I Built an AI Agent That Reads Release Notes So I Don't Have To — post + video (links added at publish) | [`topic-04-release-digest`](topic-04-release-digest/) |
+| 7 | Connect SQL Server to Visual Studio — post + video (links added at publish) | [`topic-07-connect-sql-server-vs`](topic-07-connect-sql-server-vs/) |
 
 New folders land with each new post (publishing cadence: Tuesday / Thursday / Saturday).
 
