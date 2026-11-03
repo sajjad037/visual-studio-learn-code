@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 // SQLCONN selects the server. The fallback is the LocalDB automatic instance
 // that Visual Studio installs with the Data storage and processing workload.
 const string defaultConnectionString =
-    "Server=(localdb)\\MSSQLLocalDB;Database=SqlConnectDemo;" +
+    "Server=(localdb)\\MSSQLLocalDB;Database=DemoDb;" +
     "Integrated Security=true;Encrypt=true;TrustServerCertificate=true;";
 
 string connectionString =
@@ -12,7 +12,7 @@ string connectionString =
 var builder = new SqlConnectionStringBuilder(connectionString);
 if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
 {
-    builder.InitialCatalog = "SqlConnectDemo";
+    builder.InitialCatalog = "DemoDb";
     connectionString = builder.ConnectionString;
 }
 
@@ -20,8 +20,10 @@ string targetDatabase = builder.InitialCatalog;
 string quotedDatabase = targetDatabase.Replace("]", "]]", StringComparison.Ordinal);
 string databaseLiteral = targetDatabase.Replace("'", "''", StringComparison.Ordinal);
 
-// Create the demo database first. LocalDB and a Developer-edition instance
-// both accept this through the master database.
+// Create the target database first, if it does not exist yet. LocalDB and a
+// Developer-edition instance both accept this through the master database.
+// (In the practice exercise you create PracticeDb yourself in Object
+// Explorer, so this step simply finds it already there.)
 if (!targetDatabase.Equals("master", StringComparison.OrdinalIgnoreCase))
 {
     var masterBuilder = new SqlConnectionStringBuilder(connectionString)
@@ -41,30 +43,34 @@ if (!targetDatabase.Equals("master", StringComparison.OrdinalIgnoreCase))
 await using var connection = new SqlConnection(connectionString);
 await connection.OpenAsync();
 
+// The table is the post's Method 2 table — dbo.DemoCustomers — and the seed
+// is the same three rows the post, setup.sql and the videos all show. The
+// MERGE keys on Name (Id is an IDENTITY column), so re-running updates the
+// same three rows instead of duplicating them.
 await using (var setup = new SqlCommand(
     """
-    IF OBJECT_ID(N'dbo.DemoRows', N'U') IS NULL
+    IF OBJECT_ID(N'dbo.DemoCustomers', N'U') IS NULL
     BEGIN
-        CREATE TABLE dbo.DemoRows
+        CREATE TABLE dbo.DemoCustomers
         (
-            Id int NOT NULL PRIMARY KEY,
-            Tool nvarchar(60) NOT NULL,
-            Category nvarchar(60) NOT NULL
+            Id INT IDENTITY(1,1) PRIMARY KEY,
+            Name NVARCHAR(100) NOT NULL,
+            City NVARCHAR(100) NOT NULL
         );
     END;
 
-    MERGE dbo.DemoRows AS target
+    MERGE dbo.DemoCustomers AS target
     USING (VALUES
-        (1, N'Visual Studio', N'Development environment'),
-        (2, N'SQL Server', N'Database engine'),
-        (3, N'SQL Server Management Studio', N'Administration tool')
-    ) AS source (Id, Tool, Category)
-    ON target.Id = source.Id
+        (N'Amara', N'Toronto'),
+        (N'Jonas', N'Berlin'),
+        (N'Priya', N'Lagos')
+    ) AS source (Name, City)
+    ON target.Name = source.Name
     WHEN MATCHED THEN
-        UPDATE SET Tool = source.Tool, Category = source.Category
+        UPDATE SET City = source.City
     WHEN NOT MATCHED THEN
-        INSERT (Id, Tool, Category)
-        VALUES (source.Id, source.Tool, source.Category);
+        INSERT (Name, City)
+        VALUES (source.Name, source.City);
     """,
     connection))
 {
@@ -90,7 +96,7 @@ Console.WriteLine(version);
 Console.WriteLine("Demo rows:");
 
 await using (var rows = new SqlCommand(
-    "SELECT Id, Tool, Category FROM dbo.DemoRows ORDER BY Id;", connection))
+    "SELECT Id, Name, City FROM dbo.DemoCustomers ORDER BY Id;", connection))
 await using (var reader = await rows.ExecuteReaderAsync())
 {
     while (await reader.ReadAsync())
