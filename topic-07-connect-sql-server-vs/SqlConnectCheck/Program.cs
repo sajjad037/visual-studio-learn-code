@@ -45,7 +45,7 @@ await connection.OpenAsync();
 
 // The table is the post's Method 2 table — dbo.DemoCustomers — and the seed
 // is the same three rows the post, setup.sql and the videos all show. The
-// MERGE keys on Name (Id is an IDENTITY column), so re-running updates the
+// MERGE keys on FullName (CustomerId is an IDENTITY column), so re-running updates the
 // same three rows instead of duplicating them.
 await using (var setup = new SqlCommand(
     """
@@ -53,8 +53,8 @@ await using (var setup = new SqlCommand(
     BEGIN
         CREATE TABLE dbo.DemoCustomers
         (
-            Id INT IDENTITY(1,1) PRIMARY KEY,
-            Name NVARCHAR(100) NOT NULL,
+            CustomerId INT IDENTITY(1,1) PRIMARY KEY,
+            FullName NVARCHAR(100) NOT NULL,
             City NVARCHAR(100) NOT NULL
         );
     END;
@@ -64,13 +64,13 @@ await using (var setup = new SqlCommand(
         (N'Amara', N'Toronto'),
         (N'Jonas', N'Berlin'),
         (N'Priya', N'Lagos')
-    ) AS source (Name, City)
-    ON target.Name = source.Name
+    ) AS source (FullName, City)
+    ON target.FullName = source.FullName
     WHEN MATCHED THEN
         UPDATE SET City = source.City
     WHEN NOT MATCHED THEN
-        INSERT (Name, City)
-        VALUES (source.Name, source.City);
+        INSERT (FullName, City)
+        VALUES (source.FullName, source.City);
     """,
     connection))
 {
@@ -96,7 +96,7 @@ Console.WriteLine(version);
 Console.WriteLine("Demo rows:");
 
 await using (var rows = new SqlCommand(
-    "SELECT Id, Name, City FROM dbo.DemoCustomers ORDER BY Id;", connection))
+    "SELECT CustomerId, FullName, City FROM dbo.DemoCustomers ORDER BY CustomerId;", connection))
 await using (var reader = await rows.ExecuteReaderAsync())
 {
     while (await reader.ReadAsync())
