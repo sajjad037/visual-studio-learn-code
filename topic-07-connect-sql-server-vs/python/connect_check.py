@@ -21,15 +21,15 @@ DEFAULT_CONNECTION_STRING = (
 
 # The table is the post's Method 2 table — dbo.DemoCustomers — seeded with
 # the same three rows the post, setup.sql and the videos all show. The
-# MERGE keys on Name (Id is an IDENTITY column), so re-running updates the
+# MERGE keys on FullName (CustomerId is an IDENTITY column), so re-running updates the
 # same three rows instead of duplicating them.
 SETUP_SQL = """
 IF OBJECT_ID(N'dbo.DemoCustomers', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.DemoCustomers
     (
-        Id INT IDENTITY(1,1) PRIMARY KEY,
-        Name NVARCHAR(100) NOT NULL,
+        CustomerId INT IDENTITY(1,1) PRIMARY KEY,
+        FullName NVARCHAR(100) NOT NULL,
         City NVARCHAR(100) NOT NULL
     );
 END;
@@ -39,13 +39,13 @@ USING (VALUES
     (N'Amara', N'Toronto'),
     (N'Jonas', N'Berlin'),
     (N'Priya', N'Lagos')
-) AS source (Name, City)
-ON target.Name = source.Name
+) AS source (FullName, City)
+ON target.FullName = source.FullName
 WHEN MATCHED THEN
     UPDATE SET City = source.City
 WHEN NOT MATCHED THEN
-    INSERT (Name, City)
-    VALUES (source.Name, source.City);
+    INSERT (FullName, City)
+    VALUES (source.FullName, source.City);
 """
 
 
@@ -93,9 +93,9 @@ def main() -> None:
         print("Demo rows:")
 
         for row in cursor.execute(
-            "SELECT Id, Name, City FROM dbo.DemoCustomers ORDER BY Id;"
+            "SELECT CustomerId, FullName, City FROM dbo.DemoCustomers ORDER BY CustomerId;"
         ):
-            print(f"{row.Id} | {row.Name} | {row.City}")
+            print(f"{row.CustomerId} | {row.FullName} | {row.City}")
 
     print("Success: SQL Server connection check passed.")
 
