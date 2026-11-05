@@ -4,7 +4,7 @@ Companion code for the Visual Studio Learn tutorial
 **"How Do I Backup and Restore a SQL Server Database in SSMS? (Step by Step, 2026)"**
 
 - Post: [T8-BLOG-URL]
-- Video: [T8-VIDEO-URL]
+- Video: https://www.youtube.com/watch?v=R47KIDjby_g
 
 ## What this folder contains
 
