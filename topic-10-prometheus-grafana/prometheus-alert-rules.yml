@@ -1,0 +1,17 @@
+# Prometheus alerting-rule equivalent of the Grafana alert built in the tutorial
+# ("FastAPI p95 too high": overall p95 above 0.5s, sustained for 1 minute).
+# Load it from prometheus.yml via `rule_files:` if you alert from Prometheus
+# instead of Grafana. Same query, same threshold, same duration.
+groups:
+  - name: vsl-p95-alerts
+    rules:
+      - alert: FastAPIP95TooHigh
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket{handler!="/metrics", handler!="none"}[5m]))) > 0.5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FastAPI p95 latency above 0.5s for 1m"
+          description: "The overall 95th-percentile response time has stayed above 0.5 seconds for one minute. Open the RED dashboard (Rate / Errors / Duration by handler) to find the endpoint."
