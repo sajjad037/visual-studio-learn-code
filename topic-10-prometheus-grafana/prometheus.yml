@@ -1,0 +1,9 @@
+global:
+  # Demo choice so the dashboard reacts on camera.
+  # The Prometheus default is 1m — fine for real systems.
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "fastapi"
+    static_configs:
+      - targets: ["localhost:8000"]

@@ -1,0 +1,31 @@
+{
+  "title": "vsl-p95-alerts",
+  "interval": 10,
+  "rules": [
+    {
+      "title": "FastAPI p95 too high",
+      "condition": "B",
+      "for": "1m",
+      "noDataState": "OK",
+      "execErrState": "Error",
+      "labels": {"team": "demo", "topic": "topic-10"},
+      "annotations": {"summary": "p95 latency above 0.5s for 1 minute", "runbook": "Open the FastAPI RED dashboard"},
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "eg3y8yu4y7mkge",
+          "queryType": "",
+          "relativeTimeRange": {"from": 600, "to": 0},
+          "model": {"expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{handler!=\"/metrics\", handler!=\"none\"}[5m])))", "refId": "A", "instant": true, "range": false, "intervalMs": 15000, "maxDataPoints": 43200}
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "__expr__",
+          "queryType": "",
+          "relativeTimeRange": {"from": 0, "to": 0},
+          "model": {"refId": "B", "type": "classic_conditions", "conditions": [{"evaluator": {"params": [0.5], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}}], "datasource": {"type": "__expr__", "uid": "__expr__"}}
+        }
+      ]
+    }
+  ]
+}
