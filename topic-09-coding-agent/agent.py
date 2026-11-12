@@ -61,6 +61,8 @@ def tool_write_file(path, content):
     target = confine(path)
     if target is None:
         return {"error": f"refused: {path} is outside the project folder"}
+    if not target.parent.is_dir():
+        return {"error": f"refused: folder for {path} does not exist"}
     print(f"\n--- The agent wants to write {path} ---")
     print(content)
     answer = input("Apply this change? [y/N] ").strip().lower()
