@@ -1,0 +1,38 @@
+-- 04 - CHECK 2: what is the server waiting on?
+-- Wait stats are cumulative since the server started, so read them as a
+-- ranking, not a stopwatch. The NOT IN list filters out the waits that
+-- only mean "an idle background task is asleep" - without it the list
+-- is noise. (The blog post prints this query in shortened form; this is
+-- the full version that produced the tutorial's numbers, idle waits
+-- filtered.)
+-- Query 1: the top 10 real waits. Query 2: just the lock (LCK) and
+-- page-latch (PAGEIOLATCH) families, side by side.
+-- Measured in the tutorial: LCK_M_X on top - 36,044 ms across 3 waits -
+-- while PAGEIOLATCH_SH was only 337 ms: the server was waiting on
+-- locks, not on disk.
+
+SELECT TOP (10) wait_type, waiting_tasks_count, wait_time_ms
+FROM sys.dm_os_wait_stats
+WHERE wait_type NOT IN (
+ 'BROKER_EVENTHANDLER','BROKER_RECEIVE_WAITFOR','BROKER_TASK_STOP','BROKER_TO_FLUSH',
+ 'BROKER_TRANSMITTER','CHECKPOINT_QUEUE','CHKPT','CLR_AUTO_EVENT','CLR_MANUAL_EVENT',
+ 'KSOURCE_WAKEUP','LAZYWRITER_SLEEP','LOGMGR_QUEUE','ONDEMAND_TASK_QUEUE',
+ 'QDS_ASYNC_QUEUE','QDS_CLEANUP_STALE_QUERIES_TASK','QDS_PERSIST_TASK_MAIN_LOOP_SLEEP',
+ 'REQUEST_FOR_DEADLOCK_SEARCH','RESOURCE_QUEUE','SERVER_IDLE_CHECK','SLEEP_BPOOL_FLUSH',
+ 'SLEEP_DBSTARTUP','SLEEP_DCOMSTARTUP','SLEEP_MASTERDBREADY','SLEEP_MASTERMDREADY',
+ 'SLEEP_MASTERUPGRADED','SLEEP_MSDBSTARTUP','SLEEP_SYSTEMTASK','SLEEP_TASK',
+ 'SLEEP_TEMPDBSTARTUP','SP_SERVER_DIAGNOSTICS_SLEEP','SQLTRACE_BUFFER_FLUSH',
+ 'SQLTRACE_INCREMENTAL_FLUSH_SLEEP','SQLTRACE_WAIT_ENTRIES','WAIT_FOR_RESULTS',
+ 'WAITFOR','XE_DISPATCHER_JOIN','XE_DISPATCHER_WAIT','XE_TIMER_EVENT','FT_IFTS_SCHEDULER_IDLE_WAIT',
+ 'SOS_WORK_DISPATCHER','DISPATCHER_QUEUE_SEMAPHORE','DIRTY_PAGE_POLL',
+ 'HADR_FILESTREAM_IOMGR_IOCOMPLETION','PWAIT_EXTENSIBILITY_CLEANUP_TASK',
+ 'PWAIT_ALL_COMPONENTS_INITIALIZED','STARTUP_DEPENDENCY_MANAGER','DBMIRROR_EVENTS_QUEUE',
+ 'DBMIRRORING_CMD','DBMIRROR_SEND','HADR_CLUSAPI_CALL','HADR_LOGCAPTURE_WAIT','HADR_NOTIFICATION_DEQUEUE',
+ 'HADR_TIMER_TASK','HADR_WORK_QUEUE','PREEMPTIVE_OS_FLUSHFILEBUFFERS','PREEMPTIVE_XE_CALLBACKEXECUTE',
+ 'PWAIT_DIRECTLOGCONSUMER_GETNEXT','QDS_SHUTDOWN_QUEUE','SLEEP__-__WAIT','SNI_HTTP','VDI_CLIENT_OTHER')
+AND wait_time_ms > 0
+ORDER BY wait_time_ms DESC;
+SELECT wait_type, waiting_tasks_count, wait_time_ms
+FROM sys.dm_os_wait_stats
+WHERE wait_type LIKE 'PAGEIOLATCH%' OR wait_type LIKE 'LCK%'
+ORDER BY wait_time_ms DESC;
