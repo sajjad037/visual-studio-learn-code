@@ -15,6 +15,10 @@ One workflow file does the whole pipeline: run the tests on every pull request, 
 | `.github/workflows/ci-cd.yml` | The workflow exactly as taught in the post: a `test` job and a `deploy` job gated by `needs: test` |
 | `startup.txt` | The exact Azure App Service startup command (gunicorn + uvicorn worker) |
 
+## Using this code in your own project
+
+This folder is a complete project, designed to sit at the **root of your own repository**: copy the folder's contents into the root of a new (or existing) repo — or start a repo inside this folder — so that `.github/workflows/ci-cd.yml` ends up at `<your-repo-root>/.github/workflows/ci-cd.yml`. GitHub Actions only runs workflows from that root location; that placement is what the post's Step 1 assumes. (Here in the Visual Studio Learn code repository the folder is kept as a self-contained per-topic package, so the workflow is stored with the app it deploys and is not wired to run against this repository.)
+
 ## Run it locally
 
 ```bash
