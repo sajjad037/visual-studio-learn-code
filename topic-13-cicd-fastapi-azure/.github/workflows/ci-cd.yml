@@ -1,0 +1,57 @@
+name: CI/CD - FastAPI to Azure
+
+# Plain pull_request for checks on every proposed change.
+# Plain push to main for the deploy. No pull_request_target anywhere:
+# GitHub blocks it by default in public repos from Dec 2, 2026.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read   # default for all jobs; the deploy job adds id-token below
+
+jobs:
+  test:
+    name: Test (runs on pull_request and on push)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: pytest -v
+
+  deploy:
+    name: Deploy to Azure (push to main only, after tests pass)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write   # required: lets this job mint the OIDC token Azure/login exchanges
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies (for the package)
+        run: pip install -r requirements.txt -t .
+      - name: Log in to Azure with OIDC (no stored password)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          package: .
