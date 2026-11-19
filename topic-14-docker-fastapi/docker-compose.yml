@@ -1,0 +1,6 @@
+services:
+  notes:
+    build: .
+    image: notes-api:slim
+    ports:
+      - "8000:8000"
