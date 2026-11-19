@@ -11,7 +11,7 @@ and a two-stage slim Dockerfile (198 MB) — same app, same answers.
 | File | What it is |
 |---|---|
 | `main.py` | The app: a notes API with `GET /health`, `GET /notes`, `POST /notes` |
-| `requirements.txt` | fastapi + uvicorn |
+| `requirements.txt` | fastapi + uvicorn + pydantic, pinned |
 | `Dockerfile.naive` | The obvious first try: full `python:3.12`, everything copied in |
 | `Dockerfile` | The proper pack: two stages on `python:3.12-slim`, non-root user, health check |
 | `.dockerignore` | Keeps caches, git history and the recipes themselves out of the build context |
@@ -33,6 +33,10 @@ docker rm -f notes
 ```bash
 docker build -t notes-api:slim .
 docker images        # notes-api:slim ≈ 198 MB
+docker run -d --name notes -p 8000:8000 notes-api:slim
+docker ps            # the app reports (healthy) after the first health check
+curl http://localhost:8000/health
+docker rm -f notes
 ```
 
 ## Run it — the everyday way (compose)
