@@ -1,6 +1,6 @@
 # Topic #13 — CI/CD for a FastAPI App: GitHub Actions to Azure App Service
 
-Companion code for the Visual Studio Learn post **"CI/CD for a FastAPI App — GitHub Actions to Azure App Service"** (https://visualstudiolearn.blogspot.com).
+Companion code for the Visual Studio Learn post **"CI/CD for a FastAPI App — GitHub Actions to Azure App Service"** (https://www.visualstudiolearn.com).
 
 One workflow file does the whole pipeline: run the tests on every pull request, and deploy to Azure App Service only when code lands on `main`, after the tests pass, logging in with OIDC so no Azure password is ever stored in GitHub.
 

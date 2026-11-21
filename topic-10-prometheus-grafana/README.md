@@ -5,7 +5,7 @@ Prometheus + Grafana (Metrics, Dashboards, Alerts)"**.
 
 ## Watch + read
 
-- Post: https://visualstudiolearn.blogspot.com/2026/11/monitor-fastapi-app-with-prometheus.html
+- Post: https://www.visualstudiolearn.com/2026/11/monitor-fastapi-app-with-prometheus.html
 - Video: https://www.youtube.com/watch?v=7M9h7TpwSo8
 - Short: https://www.youtube.com/shorts/IsPqTjDNLgo
 - Also on dev.to: https://dev.to/visualstudiolearn/monitor-a-fastapi-app-with-prometheus-grafana-metrics-dashboards-alerts-4if5

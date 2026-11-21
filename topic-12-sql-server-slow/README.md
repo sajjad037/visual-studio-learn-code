@@ -6,7 +6,7 @@ Missing Indexes (2026)"**.
 
 ## Watch + read
 
-- Post: https://visualstudiolearn.blogspot.com/2026/11/why-is-my-sql-server-slow-4-step.html
+- Post: https://www.visualstudiolearn.com/2026/11/why-is-my-sql-server-slow-4-step.html
 - Video: https://www.youtube.com/watch?v=jSroBM7mijs
 - Short: https://www.youtube.com/shorts/ILIsWi-XKqg
 - Also on dev.to: https://dev.to/visualstudiolearn/why-is-my-sql-server-slow-a-4-step-diagnosis-with-blocking-wait-stats-execution-plans-and-45e5

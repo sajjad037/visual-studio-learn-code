@@ -1,7 +1,7 @@
 """Build Your First AI Agent in Python (Tool-Calling, Step by Step).
 
 Companion code for the Visual Studio Learn post and video:
-- Post:  https://visualstudiolearn.blogspot.com/2026/10/build-your-first-ai-agent-in-python.html
+- Post:  https://www.visualstudiolearn.com/2026/10/build-your-first-ai-agent-in-python.html
 - Video: https://www.youtube.com/watch?v=r0nY3zq9YfE
 
 A small command-line agent with two tools (weather lookup + a safe
