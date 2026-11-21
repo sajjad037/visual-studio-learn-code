@@ -5,7 +5,7 @@ Companion folder for the Visual Studio Learn post and video
 Tested TradingAgents v0.7.1 — Open-Source Agent, Tested #1"**
 (the pilot episode of the *Open-Source Agent, Tested* series).
 
-- **Blog post:** [link added at publish — Visual Studio Learn](https://visualstudiolearn.blogspot.com)
+- **Blog post:** [link added at publish — Visual Studio Learn](https://www.visualstudiolearn.com)
 - **The project under test** (credit: Tauric Research): https://github.com/TauricResearch/TradingAgents — star it there, not here, if the test convinces you.
 
 There is no original code of ours in this folder, because that is the

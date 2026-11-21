@@ -2,7 +2,7 @@
 
 Companion code for the Visual Studio Learn tutorial **"Build Your First AI Agent in Python (Tool-Calling, Step by Step)"**:
 
-- 📖 Post: https://visualstudiolearn.blogspot.com/2026/10/build-your-first-ai-agent-in-python.html
+- 📖 Post: https://www.visualstudiolearn.com/2026/10/build-your-first-ai-agent-in-python.html
 - 🎬 Video: https://www.youtube.com/watch?v=r0nY3zq9YfE
 
 ## What this is
@@ -86,4 +86,4 @@ One run of the built-in question makes 3–4 model calls (roughly 1,000–1,500 
 
 ## Errors you may hit
 
-The post's **"Errors you may hit"** section covers the common ones — `KeyError: 'GEMINI_API_KEY'`, invented tool names, malformed arguments, 429 rate limits, and transient 503s — with the fix for each: https://visualstudiolearn.blogspot.com/2026/10/build-your-first-ai-agent-in-python.html
+The post's **"Errors you may hit"** section covers the common ones — `KeyError: 'GEMINI_API_KEY'`, invented tool names, malformed arguments, 429 rate limits, and transient 503s — with the fix for each: https://www.visualstudiolearn.com/2026/10/build-your-first-ai-agent-in-python.html

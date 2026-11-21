@@ -9,7 +9,7 @@ the terminal. Every tool is confined to the `demo/` project folder, and the
 loop stops after 12 model turns no matter what.
 
 Companion to the Visual Studio Learn tutorial:
-- Blog post: https://visualstudiolearn.blogspot.com/2026/11/build-your-own-coding-agent-in-python.html
+- Blog post: https://www.visualstudiolearn.com/2026/11/build-your-own-coding-agent-in-python.html
 - Video: https://youtu.be/duquW7F_Ibc
 
 ## The demo project
