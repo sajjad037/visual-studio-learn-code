@@ -18,6 +18,8 @@ No Oracle Client / Instant Client install is needed anywhere.
 
 ## Before you run anything
 
+**You need Python 3.10 or newer.**
+
 1. Create an **Always Free Autonomous Database** in Oracle Cloud (free tier, no card charges).
 2. Download its **wallet** from the console and **unzip it** — the driver reads the *folder*, not the zip.
 3. Set the environment variables (never type secrets into code):
@@ -27,8 +29,10 @@ export ORACLE_USER=ADMIN
 export ORACLE_PASSWORD=<your database password>
 export ORACLE_WALLET_PASSWORD=<the wallet's own password — a DIFFERENT password>
 export ORACLE_WALLET_DIR=/path/to/extracted/wallet
-export ORACLE_DSN=<your alias from tnsnames.ora, e.g. vsldb_tp>
+export ORACLE_DSN=<the alias from the tnsnames.ora inside the extracted wallet folder, e.g. vsldb_tp>
 ```
+
+On Windows PowerShell, set the same variables with `$env:ORACLE_USER = "ADMIN"` (and so on).
 
 > The wallet password and the database password are two different passwords with two
 > different jobs. Mixing them up is the most common wallet connection failure.
@@ -39,9 +43,19 @@ export ORACLE_DSN=<your alias from tnsnames.ora, e.g. vsldb_tp>
 pip install -r requirements.txt
 python connect_test.py     # Connected — server version: ...
 python setup_db.py         # table + 3 rows, read back
-uvicorn app:app --port 8000
-curl http://127.0.0.1:8000/items
 python timing.py           # your own measured round trip
+```
+
+**Terminal 1** — start the app (it keeps running in this terminal):
+
+```bash
+uvicorn app:app --port 8000
+```
+
+**Terminal 2** — while it runs:
+
+```bash
+curl http://127.0.0.1:8000/items
 ```
 
 On a network that must egress through an HTTP proxy, set `ORACLE_PROXY_HOST` /

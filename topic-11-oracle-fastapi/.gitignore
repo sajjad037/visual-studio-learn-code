@@ -1,0 +1,9 @@
+# Never commit your Oracle wallet or keys — they are credentials.
+wallet/
+*.pem
+*.sso
+*.p12
+*.ora
+*.zip
+.env
+__pycache__/
