@@ -144,18 +144,14 @@ def llm(prompt):
     """THE SWAPPABLE BRAIN — this one function is the only place a model
     is called. Swap Gemini for any other model by rewriting this body;
     the rest of the app never notices.
-    Key: GEMINI_API_KEY from the environment (our build harness injects
-    its registered credential the same way when no key is set)."""
+    Key: GEMINI_API_KEY from the environment — see the README."""
     import requests
     key = os.environ.get("GEMINI_API_KEY")
-    if key:
-        headers = {"x-goog-api-key": key}
-    else:
-        sys.path.insert(0, "/opt/muse/skills/custom-connector-setup/bin")
-        from dynamic_credentials import dynamic_credential_entry
-        entry = dynamic_credential_entry("custom.gemini")
-        headers = {entry["placement"]["custom_header"]:
-                   str(entry["surrogate"]).strip()}
+    if not key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not set — a free key from Google AI Studio "
+            "is enough: export GEMINI_API_KEY=<your key>")
+    headers = {"x-goog-api-key": key}
     url = ("https://generativelanguage.googleapis.com/v1beta/models/"
            "gemini-3.8-flash:generateContent")
     r = requests.post(url, headers=headers, json={
