@@ -63,7 +63,8 @@ def load_chunks():
     for fname in sorted(os.listdir(DOCS_DIR)):
         if not fname.endswith(".md"):
             continue
-        raw = open(os.path.join(DOCS_DIR, fname)).read()
+        with open(os.path.join(DOCS_DIR, fname), encoding="utf-8") as f:
+            raw = f.read()
         blocks = [b.strip() for b in re.split(r"\n\s*\n", raw) if b.strip()]
         merged, pending = [], ""
         for b in blocks:
@@ -86,6 +87,13 @@ def collection():
 
 def ingest():
     chunks = load_chunks()
+    # Rebuild from scratch: re-ingesting an edited file must not leave
+    # orphan chunks from the older version behind in the store.
+    client = chromadb.PersistentClient(path=STORE_DIR)
+    try:
+        client.delete_collection("catalogue")
+    except Exception:
+        pass
     col = collection()
     col.upsert(
         ids=[c["id"] for c in chunks],
@@ -160,8 +168,11 @@ def llm(prompt):
     }, timeout=120, allow_redirects=False)
     r.raise_for_status()
     data = r.json()
-    return "".join(p.get("text", "")
-                   for p in data["candidates"][0]["content"]["parts"]).strip()
+    candidates = data.get("candidates") or []
+    parts = (candidates[0].get("content") or {}).get("parts") if candidates else None
+    if not parts:
+        return "(the model returned no answer this time — please try again)"
+    return "".join(p.get("text", "") for p in parts).strip()
 
 
 def ask(question):
@@ -230,9 +241,12 @@ if __name__ == "__main__":
               f"{len(set(c['source'] for c in chunks))} files")
         for c in chunks:
             print(f"  {c['id']}: {c['text'].splitlines()[0][:60]}")
-    elif cmd == "ask":
-        cli_ask(sys.argv[2])
-    elif cmd == "compare":
-        cli_compare(sys.argv[2])
+    elif cmd in ("ask", "compare"):
+        if len(sys.argv) < 3:
+            print(f'Usage: python app.py {cmd} "<question>"')
+        elif cmd == "ask":
+            cli_ask(sys.argv[2])
+        else:
+            cli_compare(sys.argv[2])
     else:
         print(__doc__)
